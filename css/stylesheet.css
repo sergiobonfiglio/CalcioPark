@@ -1,0 +1,160 @@
+/*----------- history button----------- */
+
+.btn.btn-default {
+    margin: 10px;
+    padding: 5px;
+    font-size: 14px;
+    background-color: #222;
+    color: #999;
+    border-color: #222;
+}
+.dropdown-menu {
+    background-color: #222;
+    color: #999;
+    border-color: #999;
+}
+.dropdown-menu>li>a {
+    color: #999;
+}
+/* ----------- field ----------- */
+
+.switch-ios.switch-toggle a {
+    background-color: #5cb85c;
+}
+.result {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    font-style: italic;
+    float: right;
+}
+.whiteScore {
+    margin-right: 15px;
+}
+.blackScore {
+    color: black;
+    margin-left: 15px;
+}
+#fieldImg {
+    width: auto;
+    height: 600;
+}
+.rightContainer {
+    float: left;
+    width: 375px;
+    height: 600;
+    //margin-right: 30%;
+    display: inline-block;
+    position: relative;
+}
+.fieldContainer {
+    position: relative;
+    //background-color: green;
+    float: left;
+}
+.department {
+    z-index: 10;
+    height: 33%;
+    text-align: center;
+    position: relative;
+}
+.playerField {
+    font-weight: bold;
+    font-size: 15px;
+    display: inline-block;
+    top: 40%;
+    position: relative;
+    padding: 0px 5px 0px 5px;
+    border-radius: 7px;
+    margin: 0px 10px 0px 10px;
+}
+.playerField:hover {
+    background-color: orange !important;
+    cursor: move;
+}
+.playerField.white {
+    background-color: white;
+    color: black;
+}
+.playerField.black {
+    background-color: black;
+    color: white;
+}
+.teamContainer {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    z-index: 50;
+}
+.teamContainer.top {
+    top: 6%;
+    bottom: 50%;
+}
+.teamContainer.bottom {
+    bottom: 6%;
+    top: 50%;
+}
+/* ----------- left column (players) ----------- */
+
+.leftContainer {
+    width: 200px;
+    float: left;
+    display: inline-block;
+    height: auto;
+    margin-right: 15px;
+}
+div.players {} .playerHeader {
+    border-bottom: solid black 1px;
+    margin-bottom: 5px;
+}
+.player.proposed {
+    font-style: italic;
+    color: blue;
+}
+.player.unknown {
+    color: darkgray;
+    font-style: italic;
+}
+.player:hover {
+    text-decoration: underline;
+}
+.badge.header {
+    font-size: 20px;
+    background-color: orange;
+}
+.badge {
+    font-style: normal;
+    background-color: #5cb85c;
+}
+.badge.preferred {
+    background-color: #f0ad4e;
+}
+.badge.mandatory {
+    background-color: #d9534f;
+}
+.badge.unknown {
+    background-color: lightgray;
+}
+.progress {
+    background-color: lightgray;
+}
+.hourRow {
+    float: left;
+    height: 2.0em;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+div.hour {
+    float: left;
+    font-size: 14px;
+    padding-right: 10px;
+}
+#newPlayer {
+    position: relative;
+    width: 340px;
+    z-index: 1000;
+}
+#addPlayer:hover {
+    cursor: pointer;
+}
