@@ -1,10 +1,58 @@
+<?php
+require_once("php/BL.php");
+
+$sum=( isset($_GET["p"])?1:0 )+ (isset($_GET["m"])?1:0) + (isset($_GET["sec"])?1:0);
+
+if ($sum==3){
+
+    /* player */
+	$p=$_GET["p"];
+
+	$player=Player::GetById($p);
+
+	if ($player==null){
+		die("errore2");
+	}
+
+    /* match/event */
+	$eventId=$_GET["m"];
+	$event=Event::GetEventById($eventId);
+
+	if ($event==null){
+		die("errore3");
+	}
+
+	$SEC=$player->GetSecureCode($event->Id);
+
+    /*secure*/
+	if ($SEC!=$_GET["sec"]){
+		die("errore4");
+	}
+
+    /*choice*/
+	if(isset($_GET["c"])){
+		$choice=$_GET["c"];
+		$player->UpdateChoice($event,$choice);
+	}
+
+	$choice=$player->GetChoice($event);
+}
+else if($sum==0){
+    /*do nothing: read-only*/
+}
+else{
+	die("errore1");
+}
+
+?>
+
 <html>
 
 <head>
     <title>CalcioPark</title>
+    <link rel="icon" href="favicon.ico">
 
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
-
 
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
@@ -32,7 +80,8 @@
                 </li>
                 <li><a href="#">25/04/2014</a>
                 </li>
-                <li><a href="#">...</a></li>
+                <li><a href="#">...</a>
+                </li>
             </ul>
         </div>
 

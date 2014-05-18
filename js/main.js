@@ -2,17 +2,20 @@ $(document).ready(
 
     function () {
 
+        var cache = new PlayersCache();
+
         //players list
-        var players = new Players();
-        players.updatePlayers();
+        var players = new Players(cache);
 
         //bench
-        var bench = new Bench();
-        bench.updateBench(bench);
+        var bench = new Bench(cache);
 
         //field
-        var field = new Field(players);
-        field.showTeamForTurn(1);
+        var field = new Field(cache);
+        //field.showTeamForTurn(1);
+
+
+        cache.updatePlayers();
 
         friendAdder = new FriendAdder(players.containerId);
 
@@ -25,20 +28,21 @@ $(document).ready(
 
         //bind events to buttons
         $('#addPlayer').bind('click', function (event) {
-            friendAdder.addFriend()
+            friendAdder.addFriend();
         });
 
-
-        //init tooltip
-        $('.tt').tooltip({
+        $(".tt").tooltip({
             placement: 'left',
             'delay': {
                 show: 400,
             }
         });
+
     }
 
 );
+
+
 
 function FriendAdder(containerId) {
     this.containerId = containerId;
@@ -79,23 +83,60 @@ FriendAdder.prototype.addFriend = function () {
             '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
             '<strong>Uno alla volta!</strong><br/> Senza spingere...</div>');
     }
-}
+};
 
 FriendAdder.prototype.commitFriend = function (write) {
     $('#newPlayer').fadeOut().remove();
     $('#addingAlert').fadeOut().remove();
     this.addingFriend = false;
+};
+
+function PlayersCache() {
+    this.players = null;
+    this.observers = [];
 }
+PlayersCache.prototype.notify = function () {
+    for (var i = 0; i < this.observers.length; i++) {
+        this.observers[i].onChange(this.players);
+    }
+}
+PlayersCache.prototype.subscribe = function (observer) {
+    this.observers.push(observer);
+}
+PlayersCache.prototype.updatePlayers = function () {
+    $.ajax({
+        type: 'GET',
+        url: 'php\\getPlayers.php',
+        complete: $.proxy(function (msg, status) {
+            try {
+                if (status == "success") {
+                    var res = $.parseJSON(msg.responseText);
+                    this.players = res;
+                    this.notify();
+                } else {
+                    throw "Bad response: status= " + status;
+                }
+            } catch (err) {
+                alert("Si e' verificato un errore durante la richiesta della lista giocatori. [" + err + "]");
+            }
+
+        }, this)
+    });
+};
 
 
 //Players base class
-function PlayersList(containerId) {
+function PlayersList(containerId, playersCache) {
 
     this.containerId = containerId;
+    if (playersCache !== undefined) {
+        playersCache.subscribe(this);
+    }
+    this.players;
 
     this.addPlayer = function (name, divClass, badgeClass, badgeContent, tooltip) {
         var title = "";
-        if (tooltip != null) {
+        if (tooltip !== undefined && tooltip !== null) {
             badgeClass += " tt";
             title = "title='" + tooltip + "'";
         }
@@ -105,97 +146,59 @@ function PlayersList(containerId) {
             badgeContent +
             "</span></div>"
         );
-    }
+
+        $(this.containerId + " .tt").tooltip({
+            placement: 'left',
+            'delay': {
+                show: 400,
+            }
+        });
+
+    };
+
 }
 
-Players.prototype = new PlayersList('#playersContainer');
+
+function Player(name, turn, mandatory, proposed, answer) {
+    this.Name = name;
+    this.Turn = turn;
+    this.Mandatory = mandatory;
+    this.Proposed = proposed;
+    this.Answer = answer;
+}
+
+Players.prototype = new PlayersList;
 Players.constructor = Players;
 
-function Players() {
+function Players(cache) {
+    PlayersList.call(this, '#playersContainer', cache);
     this.addingFriend = false;
-    this.players = this.getPlayers();
-
-
 }
-Players.prototype.getPlayersOfTurn = function (turn) {
-    var playersOfTurn = [];
-    var count = 0;
-    for (var i = 0; i < this.players.length; i++) {
-        var p = this.players[i];
-        if (p.turn == 3 || p.turn == turn) {
-            playersOfTurn[count++] = p;
-        }
-    }
-    return playersOfTurn;
-}
-
-Players.prototype.getPlayers = function () {
-    var players = [
-        {
-            name: "Luca",
-            turn: 3
-            }, {
-            name: "Marzio",
-            turn: 3
-        }, {
-            name: "Paolo",
-            turn: 3
-        }, {
-            name: "Piero",
-            turn: 3
-        }, {
-            name: "Pirlo",
-            turn: 3
-        }, {
-            name: "Scavo",
-            turn: 3
-        }, {
-            name: "SerBo",
-            turn: 3
-        }, {
-            name: "Rondine",
-            turn: 1
-        }, {
-            name: "Massena",
-            turn: 1,
-            mandatory: true
-        }
-        , {
-            name: "Amico",
-            turn: 1,
-            mandatory: true,
-            proposed: true,
-        }
-
-    ];
-    return players;
-}
-
-
-Players.prototype.updatePlayers = function () {
-    this.players = this.getPlayers();
+Players.prototype.onChange = function (players) {
+    this.players = players;
     $(this.containerId).text("");
     for (var i = 0; i < this.players.length; i++) {
         var p = this.players[i];
-        var tooltip;
-        var divClass = p.proposed ? "proposed" : "";
-        var badgeClass = "";
-        if (p.mandatory) {
-            tooltip = "Solo " + p.turn + "&deg; turno";
-            badgeClass = "mandatory";
-        } else if (!p.mandatory && p.turn < 3) {
-            badgeClass = "preferred";
-            tooltip = "Preferibilmente " + p.turn + "&deg; turno";
+        if (p.Turn !== null) {
+            var tooltip;
+            var divClass = p.Proposed ? "proposed" : "";
+            var badgeClass = "";
+            if (p.Mandatory) {
+                tooltip = "Solo " + p.Turn + "&deg; turno";
+                badgeClass = "mandatory";
+            } else if (!p.Mandatory && p.Turn < 3) {
+                badgeClass = "preferred";
+                tooltip = "Preferibilmente " + p.Turn + "&deg; turno";
+            }
+
+            var badgeContent = p.Turn == 3 ? "1&deg;-2&deg;" : p.Turn.toString() + "&deg;";
+
+            //add players to list
+            this.addPlayer(p.Name, divClass, badgeClass, badgeContent, tooltip);
         }
-        //badgeClass = p.mandatory ? "mandatory" : p.turn < 3 ? "preferred" : "";
-
-        var badgeContent = p.turn == 3 ? "1&deg;-2&deg;" : p.turn.toString() + "&deg;";
-
-        //add players to list
-        this.addPlayer(p.name, divClass, badgeClass, badgeContent, tooltip);
     }
-    this.updateCounts()
-}
+    this.updateCounts();
+};
 Players.prototype.setProgressBar = function (turn, type, count) {
     var prefix = "#progress";
     var sep = "-";
@@ -204,107 +207,108 @@ Players.prototype.setProgressBar = function (turn, type, count) {
     $(id).animate({
         width: (100 * count / 14) + "%"
     });
-    $(id).text((!isNaN(count) && count != 0) ? count : "");
-}
+    $(id).text((!isNaN(count) && count !== 0) ? count : "");
+};
 Players.prototype.updateCounts = function () {
     var countsBoth = 0;
     var countsFirstTurn = {};
     var countsSecondTurn = {};
     //init
-    countsFirstTurn['movable'] = 0;
-    countsSecondTurn['movable'] = 0;
-    countsFirstTurn['mandatory'] = 0;
-    countsSecondTurn['mandatory'] = 0;
+    countsFirstTurn.movable = 0;
+    countsSecondTurn.movable = 0;
+    countsFirstTurn.mandatory = 0;
+    countsSecondTurn.mandatory = 0;
 
     for (var i = 0; i < this.players.length; i++) {
         var p = this.players[i];
 
-        if (p.turn == 3) {
+        if (p.Turn == 3) {
             countsBoth++;
         } else {
-            countsFirstTurn['movable'] += (p.turn == 1 && (p.mandatory == null || p.mandatory == false)) ? 1 : 0;
-            countsSecondTurn['movable'] += (p.turn == 2 && (p.mandatory == null || p.mandatory == false)) ? 1 : 0;
-            countsFirstTurn['mandatory'] += (p.turn == 1 && p.mandatory == true) ? 1 : 0;
-            countsSecondTurn['mandatory'] += (p.turn == 2 && p.mandatory == true) ? 1 : 0;
+            countsFirstTurn.movable += (p.Turn == 1 && (p.Mandatory === null || p.Mandatory === false)) ? 1 : 0;
+            countsSecondTurn.movable += (p.Turn == 2 && (p.Mandatory === null || p.Mandatory === false)) ? 1 : 0;
+            countsFirstTurn.mandatory += (p.Turn == 1 && p.Mandatory === true) ? 1 : 0;
+            countsSecondTurn.mandatory += (p.Turn == 2 && p.Mandatory === true) ? 1 : 0;
         }
 
     }
 
     this.setProgressBar(1, "both", countsBoth);
     this.setProgressBar(2, "both", countsBoth);
-    this.setProgressBar(1, "movable", countsFirstTurn['movable']);
-    this.setProgressBar(2, "movable", countsSecondTurn['movable']);
-    this.setProgressBar(1, "mandatory", countsFirstTurn['mandatory']);
-    this.setProgressBar(2, "mandatory", countsSecondTurn['mandatory']);
+    this.setProgressBar(1, "movable", countsFirstTurn.movable);
+    this.setProgressBar(2, "movable", countsSecondTurn.movable);
+    this.setProgressBar(1, "mandatory", countsFirstTurn.mandatory);
+    this.setProgressBar(2, "mandatory", countsSecondTurn.mandatory);
+};
+
+Bench.prototype = new PlayersList;
+Bench.prototype.constructor = Bench;
+
+function Bench(cache) {
+    PlayersList.call(this, '#benchContainer', cache);
 }
 
-
-
-
-function Bench() {}
-Bench.prototype = new PlayersList('#benchContainer');
-Bench.prototype.getBench = function () {
-    var players = [
-        {
-            name: "Luca",
-            answer: "x"
-        },
-        {
-            name: "Marzio",
-            answer: "?"
-        },
-        {
-            name: "Paolo"
-        },
-        {
-            name: "Piero"
-        }
-    ];
-    return players;
-}
-Bench.prototype.updateBench = function () {
-    var players = this.getBench();
+Bench.prototype.onChange = function (players) {
+    this.players = players;
+    //var players = this.getBench();
     $(this.containerId).text("");
     for (var i = 0; i < players.length; i++) {
         var p = players[i];
-        var tooltip = "Nessuna risposta";
-        var badgeClass = "unknown";
-        var divClass = (p.answer == null) ? "unknown" : "";
-        if (p.answer != null && p.answer == "x") {
-            badgeClass = "mandatory";
-            tooltip = "Assente";
-        } else if (p.answer != null && p.answer == "?") {
-            badgeClass = "preferred";
-            tooltip = "Non so ancora";
+        if (p.Turn === null) {
+            var tooltip = "Nessuna risposta";
+            var badgeClass = "unknown";
+            var divClass = (p.Answer === null) ? "unknown" : "";
+            if (p.Answer !== null && p.Answer == "x") {
+                badgeClass = "mandatory";
+                tooltip = "Assente";
+            } else if (p.Answer !== null && p.Answer == "?") {
+                badgeClass = "preferred";
+                tooltip = "Non so ancora";
+            }
+            var badgeContent = (p.Answer === null) ? "-" : p.Answer;
+
+            //add players to list
+            this.addPlayer(p.Name, divClass, badgeClass, badgeContent, tooltip);
         }
-        var badgeContent = (p.answer == null) ? "-" : p.answer;
-
-        //add players to list
-        this.addPlayer(p.name, divClass, badgeClass, badgeContent, tooltip);
-
     }
+};
+
+function Field(cache) {
+    cache.subscribe(this);
+    this.firstTurnPlayers; // = this.shuffle(playerList.getPlayersOfTurn(1));
+    this.secondTurnPlayers; // = this.shuffle(playerList.getPlayersOfTurn(2));
+
 }
-
-function Field(playerList) {
-    //this.players = playerList;
-    this.firstTurnPlayers = this.shuffle(playerList.getPlayersOfTurn(1));
-    this.secondTurnPlayers = this.shuffle(playerList.getPlayersOfTurn(2));
-
+Field.prototype.onChange = function(players){
+    this.firstTurnPlayers = this.shuffle(this.getPlayersOfTurn(players, 1));
+    this.secondTurnPlayers = this.shuffle(this.getPlayersOfTurn(players, 2));
+    this.showTeamForTurn(1);
 }
 Field.prototype.showTeamForTurn = function (turn) {
     this.updateTeams(turn);
-}
-
+};
+Field.prototype.getPlayersOfTurn = function (players, turn) {
+    var playersOfTurn = [];
+    var count = 0;
+    for (var i = 0; i < players.length; i++) {
+        var p = players[i];
+        if (p.Turn == 3 || p.Turn == turn) {
+            playersOfTurn[count++] = p;
+        }
+    }
+    return playersOfTurn;
+};
 Field.prototype.updateTeams = function (turn) {
-    $('.fieldContainer').find(".playerField").remove()
+    $('.fieldContainer').find(".playerField").remove();
 
     players = turn == 1 ? this.firstTurnPlayers : this.secondTurnPlayers;
-    //players = this.shuffle(playersOfTurn);
 
-    this.addPlayersToTeam('white', players.slice(0, Math.floor(players.length / 2)));
-    this.addPlayersToTeam('black', players.slice(Math.floor(players.length / 2)), players.length);
+    if (players !== null) {
+        this.addPlayersToTeam('white', players.slice(0, Math.floor(players.length / 2)));
+        this.addPlayersToTeam('black', players.slice(Math.floor(players.length / 2)), players.length);
+    }
 
-}
+};
 Field.prototype.shuffle =
     function (array) {
         var m = array.length,
@@ -320,15 +324,15 @@ Field.prototype.shuffle =
             array[i] = t;
         }
         return array;
-}
+};
 
 Field.prototype.addPlayersToTeam = function (team, players) {
     var $departments = $('#' + team + 'Team').find('.department');
     var p = 0;
     while (p < players.length) {
         for (var i = 0; i < $departments.length && p < players.length; i++) {
-            $departments[i].innerHTML += "<div class=\"playerField " + team + "\">" + players[p++].name + "</div>";
+            $departments[i].innerHTML += "<div class=\"playerField " + team + "\">" + players[p++].Name + "</div>";
         }
     }
     $departments.hide().fadeIn();
-}
+};
