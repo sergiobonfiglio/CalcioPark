@@ -2,6 +2,8 @@ $(document).ready(
 
     function () {
 
+        updateEventsList();
+
         var cache = new PlayersCache();
 
         //players list
@@ -41,6 +43,27 @@ $(document).ready(
     }
 
 );
+
+
+function updateEventsList(){
+$.ajax({
+        type: 'GET',
+        url: 'php\\getEvents.php',
+        complete: $.proxy(function (msg, status) {
+            try {
+                if (status == "success") {
+                    var res = $.parseJSON(msg.responseText);
+                    $('#lastEvent').append(res.Date.substr(0,10));
+                } else {
+                    throw "Bad response: status= " + status;
+                }
+            } catch (err) {
+                alert("Si e' verificato un errore durante la richiesta della lista giocatori. [" + err + "]");
+            }
+
+        }, this)
+    });
+}
 
 
 

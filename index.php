@@ -70,16 +70,10 @@ else{
         <a class="navbar-brand">CalcioPark</a>
 
         <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                16/05/2014 <span class="caret"></span>
+            <button id="lastEvent" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                 <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="#">09/05/2014</a>
-                </li>
-                <li><a href="#">02/05/2014</a>
-                </li>
-                <li><a href="#">25/04/2014</a>
-                </li>
+            <ul id="otherEvents" class="dropdown-menu" role="menu">
                 <li><a href="#">...</a>
                 </li>
             </ul>
