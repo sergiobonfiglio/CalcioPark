@@ -1,3 +1,34 @@
+/*----------- carousel ----------- */
+
+.glyphicon-chevron-right:before{
+	content: "\e080
+		20:00";
+	font-size:20px;
+	right:-60%;
+	margin-top: -25%;
+	position: absolute;
+}
+.glyphicon-chevron-left:before{
+	content: "\e079
+		19:00";
+	font-size:20px;
+	left:-15%;
+	margin-top: -25%;
+	position: absolute;
+}
+
+
+
+/*----------- drag and drop ----------- */
+.over {
+	border: 2px dashed black;
+	opacity: 1;
+}
+.dragging {
+	opacity: 0.5;
+}
+
+
 /*----------- history button----------- */
 
 .btn.btn-default {
@@ -27,6 +58,7 @@
     font-weight: bold;
     font-style: italic;
     float: right;
+	opacity: 0.5;
 }
 .whiteScore {
     margin-right: 15px;
@@ -35,7 +67,7 @@
     color: black;
     margin-left: 15px;
 }
-#fieldImg {
+#fieldImg1,#fieldImg2 {
     width: auto;
     height: 600;
 }
@@ -54,9 +86,25 @@
 }
 .department {
     z-index: 10;
-    height: 33%;
+    height: 30%;
     text-align: center;
     position: relative;
+}
+.department.gk {
+    z-index: 10;
+    height: 9%;
+    text-align: center;
+    position: relative;
+}
+.subDepartment{
+    display: block;
+    float:  left;
+    height: 100%;
+    width: 33%;
+}
+.subDepartment.gk{
+	position: relative;
+	left: 33%;
 }
 .playerField {
     font-weight: bold;
@@ -72,6 +120,7 @@
     background-color: orange !important;
     cursor: move;
 }
+
 .playerField.white {
     background-color: white;
     color: black;
@@ -87,13 +136,43 @@
     z-index: 50;
 }
 .teamContainer.top {
-    top: 6%;
+    top: 1%;
     bottom: 50%;
 }
 .teamContainer.bottom {
-    bottom: 6%;
+    bottom: 1%;
     top: 50%;
 }
+/*.teamContainer.white {
+    background-color: white;
+    color: black;
+}
+.teamContainer.black {
+    background-color: white;
+    color: black;
+}*/
+
+.teamTools{
+	height: 100%;
+	width: 10%;
+	position: absolute;
+	left: 100%;
+}
+.toolIcon{
+	display: block;
+	padding-left: 10px;
+	font-size: 120%;
+	cursor: pointer;
+}
+.toolIcon:hover{
+	color: #5cb85c;
+	/*font-size: 130%;*/
+}
+.toolIcon.disabled{
+	color: gray !important;
+	cursor: default !important;
+}
+
 /* ----------- left column (players) ----------- */
 
 .leftContainer {

@@ -1,16 +1,22 @@
 <?php
 class Player{
 	var $Id;
-	//var $Name;
-	//var $Surname;
+	var $Name;
+	var $Surname;
 	var $Nickname;
-	//var $Email;
+	var $Email;
     var $Choice;
+	var $Group;
 
 	public static function GetEventPlayers($event){
 		require(dirname(__FILE__)."/../include.php");
 
-		$query="SELECT p.*, a.choice FROM player p, association a where a.player_id=p.id and a.event_id='".$event->Id."' and a.active=1";
+		$query="SELECT p.*, a.choice
+				FROM player p, association a
+				WHERE a.player_id=p.id AND
+					  a.event_id='".$event->Id."' AND
+					  a.active=1
+				ORDER BY a.choice desc";
 		//echo $query;
 		$result=mysql_query($query) or die(mysql_error());
 		$res=array();
@@ -29,6 +35,29 @@ class Player{
 	}
 
 
+    public static function GetByNickName($nickName){
+        require(dirname(__FILE__)."/../include.php");
+
+		if(isset($nickName)){
+			$query="SELECT * FROM player WHERE nickname='".$nickName."'";
+			//echo $query;
+			$result=mysql_query($query) or die(mysql_error());
+			if($row = mysql_fetch_assoc($result)){
+				$player=new Player();
+				$player->Id=$row["id"];
+				$player->Name=$row["name"];
+				$player->Surname=$row["surname"];
+				$player->Nickname=$row["nickname"];
+				$player->Email=$row["email"];
+				mysql_free_result($result);
+				mysql_free_result($result);
+				return $player;
+			}
+		}
+		return null;
+    }
+
+
 	public static function GetById($id){
 		require(dirname(__FILE__)."/../include.php");
 
@@ -42,6 +71,7 @@ class Player{
 			$player->Surname=$row["surname"];
 			$player->Nickname=$row["nickname"];
 			$player->Email=$row["email"];
+			$player->Group=$row["group"];
 			mysql_free_result($result);
 			return $player;
 		}

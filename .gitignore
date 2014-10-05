@@ -4,3 +4,7 @@
 /.ftpsync_settings
 .DS_Store
 config.php
+/css/stylesheet.min.css
+/css/toggle-switch.min.css
+/js/main.min.js
+/php/phpInfo.php

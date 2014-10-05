@@ -1,4 +1,4 @@
-<?php
+	<?php
 
 $opzioni[-1]=("NESSUNA RISPOSTA");
 $opzioni[0]=("NON SO ANCORA");
