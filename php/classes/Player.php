@@ -50,7 +50,6 @@ class Player{
 				$player->Nickname=$row["nickname"];
 				$player->Email=$row["email"];
 				mysql_free_result($result);
-				mysql_free_result($result);
 				return $player;
 			}
 		}

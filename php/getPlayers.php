@@ -19,11 +19,13 @@ class EventPlayer{
 	public $Mandatory;
 	public $Proposed;
 	public $Answer;
+	public $HasProposal;
 
 	public function __construct($player){
 
 		$this->Name = $player->Nickname;
 		$this->initFromChoice($player->Choice);
+		//$this->HasProposal = $player->HasProposal;
 		//TODO: add proposed flag
 	}
 
