@@ -235,7 +235,7 @@ function handleDragOver(e) {
 function updateEventsList(){
 $.ajax({
         type: 'GET',
-        url: 'php\\getEvents.php',
+        url: 'php/getEvents.php',
         complete: $.proxy(function (msg, status) {
             try {
                 if (status == "success") {
@@ -262,7 +262,7 @@ function getDefaultTeam(event, turn, teamColor){}
 function commitTeam(team){
     $.ajax({
             type: 'POST',
-            url: 'php\\submitTeam.php',
+            url: 'php/submitTeam.php',
             data: 'team='+JSON.stringify(team),
             complete: $.proxy(function (msg, status) {
                 try {
@@ -433,7 +433,7 @@ PlayersCache.prototype = new Observable;
 PlayersCache.constructor = PlayersCache;
 
 function PlayersCache() {
-	Observable.call(this, 'php\\getPlayers.php');
+	Observable.call(this, 'php/getPlayers.php');
 }
 
 PlayersCache.prototype.getPlayerByName = function(name){
@@ -453,7 +453,7 @@ ProposedTeams.prototype = new Observable;
 ProposedTeams.constructor = ProposedTeams;
 
 function ProposedTeams() {
-	Observable.call(this, 'php\\getProposedTeams.php');
+	Observable.call(this, 'php/getProposedTeams.php');
 }
 
 /*-----------------------------------------------------------------*/
